@@ -41,12 +41,16 @@ try {
 }
 
 // Auth Wrapper Functions (Fallback to mock if not configured)
+let mockAuthCallback = null;
+
 export const loginUser = async (email, password) => {
     if (auth) {
         return await signInWithEmailAndPassword(auth, email, password);
     }
     // Mock login
-    return { user: { email, uid: "mock-uid-123" } };
+    const user = { email, uid: "mock-uid-123" };
+    if (mockAuthCallback) mockAuthCallback(user);
+    return { user };
 };
 
 export const registerUser = async (email, password) => {
@@ -54,13 +58,16 @@ export const registerUser = async (email, password) => {
         return await createUserWithEmailAndPassword(auth, email, password);
     }
     // Mock register
-    return { user: { email, uid: "mock-uid-123" } };
+    const user = { email, uid: "mock-uid-123" };
+    if (mockAuthCallback) mockAuthCallback(user);
+    return { user };
 };
 
 export const logoutUser = async () => {
     if (auth) {
         return await signOut(auth);
     }
+    if (mockAuthCallback) mockAuthCallback(null);
     return true;
 };
 
@@ -68,6 +75,7 @@ export const listenToAuthStatus = (callback) => {
     if (auth) {
         onAuthStateChanged(auth, callback);
     } else {
+        mockAuthCallback = callback;
         // Mock default state: not logged in
         setTimeout(() => callback(null), 500);
     }

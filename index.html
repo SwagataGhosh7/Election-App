@@ -21,8 +21,8 @@
             <h1 class="brand-title">LearnNova</h1>
             <p class="subtitle">Your Personalized AI Tutor</p>
             <div class="auth-form">
-                <input type="email" id="email" placeholder="Email Address" required>
-                <input type="password" id="password" placeholder="Password" required>
+                <input type="email" id="email" placeholder="Email Address" aria-label="Email Address" required>
+                <input type="password" id="password" placeholder="Password" aria-label="Password" required>
                 <button id="login-btn" class="primary-btn">Sign In</button>
                 <button id="signup-btn" class="secondary-btn">Create Account</button>
                 <p id="auth-error" class="error-msg"></p>
@@ -40,7 +40,7 @@
                 <div class="card current-topic">
                     <h3>What do you want to learn today?</h3>
                     <div class="topic-input-group">
-                        <input type="text" id="topic-input" placeholder="e.g. Quantum Physics, Python, World History">
+                        <input type="text" id="topic-input" placeholder="e.g. Quantum Physics, Python, World History" aria-label="Enter a topic to learn">
                         <button id="start-learning-btn" class="primary-btn">Start Learning</button>
                     </div>
                 </div>
@@ -74,7 +74,7 @@
             </div>
 
             <div class="input-area">
-                <textarea id="user-response" placeholder="Ask a question or answer the tutor..."></textarea>
+                <textarea id="user-response" placeholder="Ask a question or answer the tutor..." aria-label="Type your message here"></textarea>
                 <button id="send-msg-btn" class="primary-btn">Send</button>
             </div>
         </section>
