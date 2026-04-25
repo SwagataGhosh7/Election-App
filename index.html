@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnNova - Personalized AI Tutor</title>
+    <meta name="description" content="An intelligent learning assistant that adapts to your pace and understanding.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app" class="app-container">
+        <!-- Auth Section -->
+        <section id="auth-section" class="glass-panel active">
+            <h1 class="brand-title">LearnNova</h1>
+            <p class="subtitle">Your Personalized AI Tutor</p>
+            <div class="auth-form">
+                <input type="email" id="email" placeholder="Email Address" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button id="login-btn" class="primary-btn">Sign In</button>
+                <button id="signup-btn" class="secondary-btn">Create Account</button>
+                <p id="auth-error" class="error-msg"></p>
+            </div>
+        </section>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard-section" class="glass-panel hidden">
+            <header class="app-header">
+                <h2>Welcome, <span id="user-display-name">Student</span></h2>
+                <button id="logout-btn" class="text-btn">Logout</button>
+            </header>
+            
+            <div class="dashboard-content">
+                <div class="card current-topic">
+                    <h3>What do you want to learn today?</h3>
+                    <div class="topic-input-group">
+                        <input type="text" id="topic-input" placeholder="e.g. Quantum Physics, Python, World History">
+                        <button id="start-learning-btn" class="primary-btn">Start Learning</button>
+                    </div>
+                </div>
+
+                <div class="card stats">
+                    <h3>Your Progress</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-value" id="topics-completed">0</span>
+                            <span class="stat-label">Topics</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="current-level">Beginner</span>
+                            <span class="stat-label">Level</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Learning Session Section -->
+        <section id="learning-section" class="glass-panel hidden">
+            <header class="app-header">
+                <button id="back-to-dashboard-btn" class="icon-btn">← Back</button>
+                <h2 id="current-topic-title">Topic</h2>
+                <div class="level-indicator" id="session-level">Beginner</div>
+            </header>
+
+            <div class="chat-container" id="chat-container">
+                <!-- Chat messages will be injected here -->
+            </div>
+
+            <div class="input-area">
+                <textarea id="user-response" placeholder="Ask a question or answer the tutor..."></textarea>
+                <button id="send-msg-btn" class="primary-btn">Send</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Firebase SDKs (v9 Compat for simpler browser usage, or module based) -->
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/gemini-api.js"></script>
+    <script type="module" src="js/ui.js"></script>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
