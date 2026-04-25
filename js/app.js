@@ -1,7 +1,3 @@
-import { loginUser, registerUser, logoutUser, listenToAuthStatus, getUserProgress, saveUserProgress } from './firebase-config.js';
-import { getGeminiResponse } from './gemini-api.js';
-import { showSection, appendMessage, showTypingIndicator, removeTypingIndicator } from './ui.js';
-
 // App State
 let currentUser = null;
 let userProgress = null;
@@ -31,44 +27,52 @@ const userResponse = document.getElementById('user-response');
 const sendMsgBtn = document.getElementById('send-msg-btn');
 
 // Auth Flow
-listenToAuthStatus(async (user) => {
+window.listenToAuthStatus(async (user) => {
     if (user) {
         currentUser = user;
         userDisplayName.textContent = user.email.split('@')[0];
         
         // Fetch progress
-        userProgress = await getUserProgress(user.uid);
+        userProgress = await window.getUserProgress(user.uid);
         topicsCompleted.textContent = userProgress.topicsCompleted || 0;
         currentLevel.textContent = userProgress.level || "Beginner";
         
-        showSection('dashboard-section');
+        window.showSection('dashboard-section');
     } else {
         currentUser = null;
         userProgress = null;
-        showSection('auth-section');
+        window.showSection('auth-section');
     }
 });
 
-loginBtn.addEventListener('click', async () => {
+loginBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
     try {
-        authError.textContent = "";
-        await loginUser(emailInput.value, passwordInput.value);
+        authError.textContent = "Logging in...";
+        if (!emailInput.value || !passwordInput.value) {
+            throw new Error("Please enter both email and password.");
+        }
+        await window.loginUser(emailInput.value, passwordInput.value);
     } catch (error) {
         authError.textContent = error.message;
     }
 });
 
-signupBtn.addEventListener('click', async () => {
+signupBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
     try {
-        authError.textContent = "";
-        await registerUser(emailInput.value, passwordInput.value);
+        authError.textContent = "Creating account...";
+        if (!emailInput.value || !passwordInput.value) {
+            throw new Error("Please enter both email and password.");
+        }
+        await window.registerUser(emailInput.value, passwordInput.value);
     } catch (error) {
         authError.textContent = error.message;
     }
 });
 
 logoutBtn.addEventListener('click', async () => {
-    await logoutUser();
+    await window.logoutUser();
 });
 
 // Learning Flow
@@ -85,23 +89,23 @@ startLearningBtn.addEventListener('click', async () => {
     chatHistory = [];
     userResponse.value = '';
 
-    showSection('learning-section');
+    window.showSection('learning-section');
 
     // Initial greeting from AI
-    showTypingIndicator('chat-container');
-    const response = await getGeminiResponse(currentTopic, userProgress.level || "Beginner", null, []);
-    removeTypingIndicator();
+    window.showTypingIndicator('chat-container');
+    const response = await window.getGeminiResponse(currentTopic, userProgress.level || "Beginner", null, []);
+    window.removeTypingIndicator();
     
-    appendMessage('chat-container', response, 'bot');
+    window.appendMessage('chat-container', response, 'bot');
     chatHistory.push({ role: 'bot', text: response });
 });
 
 backToDashboardBtn.addEventListener('click', () => {
-    showSection('dashboard-section');
+    window.showSection('dashboard-section');
     // Increment topic if they spent time learning
     if (chatHistory.length > 2 && currentUser) {
         userProgress.topicsCompleted = (userProgress.topicsCompleted || 0) + 1;
-        saveUserProgress(currentUser.uid, userProgress);
+        window.saveUserProgress(currentUser.uid, userProgress);
         topicsCompleted.textContent = userProgress.topicsCompleted;
     }
 });
@@ -112,16 +116,16 @@ const handleSendMessage = async () => {
     if (!text) return;
 
     // Add user message to UI
-    appendMessage('chat-container', text, 'user');
+    window.appendMessage('chat-container', text, 'user');
     userResponse.value = '';
     
     // Show bot thinking
-    showTypingIndicator('chat-container');
+    window.showTypingIndicator('chat-container');
     
-    const response = await getGeminiResponse(currentTopic, userProgress.level || "Beginner", text, chatHistory);
+    const response = await window.getGeminiResponse(currentTopic, userProgress.level || "Beginner", text, chatHistory);
     
-    removeTypingIndicator();
-    appendMessage('chat-container', response, 'bot');
+    window.removeTypingIndicator();
+    window.appendMessage('chat-container', response, 'bot');
     
     // Update history
     chatHistory.push({ role: 'user', text });

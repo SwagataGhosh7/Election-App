@@ -1,8 +1,6 @@
-// Replace with your actual Gemini API Key from Google AI Studio
 const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"; 
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
-// System instruction to give persona to the AI
 const getSystemPrompt = (topic, level) => `
 You are LearnNova, an intelligent, patient, and highly effective personalized learning assistant. 
 The user wants to learn about: "${topic}". 
@@ -19,7 +17,7 @@ Guidelines:
 5. Format your response using Markdown (bolding key terms, using bullet points).
 `;
 
-export const getGeminiResponse = async (topic, level, userMessage, chatHistory = []) => {
+window.getGeminiResponse = async (topic, level, userMessage, chatHistory = []) => {
     if (GEMINI_API_KEY === "YOUR_GEMINI_API_KEY") {
         // Mock response if API key is not set
         return new Promise(resolve => {
@@ -30,7 +28,6 @@ export const getGeminiResponse = async (topic, level, userMessage, chatHistory =
     }
 
     try {
-        // Build the contents array
         const contents = [
             {
                 role: "user",
@@ -42,7 +39,6 @@ export const getGeminiResponse = async (topic, level, userMessage, chatHistory =
             }
         ];
 
-        // Add history
         chatHistory.forEach(msg => {
             contents.push({
                 role: msg.role === 'bot' ? 'model' : 'user',
@@ -50,7 +46,6 @@ export const getGeminiResponse = async (topic, level, userMessage, chatHistory =
             });
         });
 
-        // Add current user message
         if (userMessage) {
             contents.push({
                 role: "user",

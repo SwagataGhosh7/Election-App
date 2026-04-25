@@ -80,10 +80,15 @@
         </section>
     </div>
 
-    <!-- Firebase SDKs (v9 Compat for simpler browser usage, or module based) -->
-    <script type="module" src="js/firebase-config.js"></script>
-    <script type="module" src="js/gemini-api.js"></script>
-    <script type="module" src="js/ui.js"></script>
-    <script type="module" src="js/app.js"></script>
+    <!-- Firebase SDKs Compat version to allow running directly from file system (no modules needed) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <!-- Local Scripts without type="module" -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/gemini-api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>

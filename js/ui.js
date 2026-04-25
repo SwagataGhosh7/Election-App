@@ -1,5 +1,4 @@
-// Utility to convert basic markdown to HTML
-export const parseMarkdown = (text) => {
+window.parseMarkdown = (text) => {
     let html = text;
     
     // Bold
@@ -23,44 +22,39 @@ export const parseMarkdown = (text) => {
     return html;
 };
 
-// UI transitions
-export const showSection = (sectionId) => {
-    // Hide all sections
+window.showSection = (sectionId) => {
     document.querySelectorAll('.glass-panel').forEach(panel => {
         panel.classList.remove('active');
         setTimeout(() => {
             if(!panel.classList.contains('active')) {
                 panel.classList.add('hidden');
             }
-        }, 500); // Wait for transition
+        }, 500); 
     });
 
-    // Show target section
     const target = document.getElementById(sectionId);
     target.classList.remove('hidden');
-    // small delay to allow display:block to apply before animating opacity
     setTimeout(() => {
         target.classList.add('active');
     }, 50);
 };
 
-// Chat UI
-export const appendMessage = (containerId, text, role) => {
+window.appendMessage = (containerId, text, role) => {
     const container = document.getElementById(containerId);
     const msgDiv = document.createElement('div');
     msgDiv.className = `message ${role}`;
     
     if (role === 'bot') {
-        msgDiv.innerHTML = parseMarkdown(text);
+        msgDiv.innerHTML = window.parseMarkdown(text);
     } else {
-        msgDiv.textContent = text; // Don't parse markdown for user input
+        msgDiv.textContent = text; 
     }
     
     container.appendChild(msgDiv);
     container.scrollTop = container.scrollHeight;
 };
 
-export const showTypingIndicator = (containerId) => {
+window.showTypingIndicator = (containerId) => {
     const container = document.getElementById(containerId);
     const indicator = document.createElement('div');
     indicator.className = 'typing-indicator';
@@ -74,7 +68,7 @@ export const showTypingIndicator = (containerId) => {
     container.scrollTop = container.scrollHeight;
 };
 
-export const removeTypingIndicator = () => {
+window.removeTypingIndicator = () => {
     const indicator = document.getElementById('typing-indicator');
     if (indicator) {
         indicator.remove();

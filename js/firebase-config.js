@@ -1,21 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { 
-    getAuth, 
-    signInWithEmailAndPassword, 
-    createUserWithEmailAndPassword,
-    signOut,
-    onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { 
-    getFirestore, 
-    doc, 
-    setDoc, 
-    getDoc,
-    updateDoc
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
 // TODO: Replace with actual Firebase config
-// Make sure to add this project in Firebase Console and enable Authentication (Email/Password) and Firestore Database
 const firebaseConfig = {
     apiKey: "YOUR_FIREBASE_API_KEY",
     authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
@@ -25,14 +8,14 @@ const firebaseConfig = {
     appId: "YOUR_APP_ID"
 };
 
-// Initialize Firebase only if API key is provided
 let app, auth, db;
+let mockAuthCallback = null;
 
 try {
     if (firebaseConfig.apiKey !== "YOUR_FIREBASE_API_KEY") {
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
+        app = firebase.initializeApp(firebaseConfig);
+        auth = firebase.auth();
+        db = firebase.firestore();
     } else {
         console.warn("Firebase is not configured. Mocking authentication for demo purposes.");
     }
@@ -40,12 +23,10 @@ try {
     console.error("Error initializing Firebase:", error);
 }
 
-// Auth Wrapper Functions (Fallback to mock if not configured)
-let mockAuthCallback = null;
-
-export const loginUser = async (email, password) => {
+// Global Auth Wrapper Functions
+window.loginUser = async (email, password) => {
     if (auth) {
-        return await signInWithEmailAndPassword(auth, email, password);
+        return await auth.signInWithEmailAndPassword(email, password);
     }
     // Mock login
     const user = { email, uid: "mock-uid-123" };
@@ -53,9 +34,9 @@ export const loginUser = async (email, password) => {
     return { user };
 };
 
-export const registerUser = async (email, password) => {
+window.registerUser = async (email, password) => {
     if (auth) {
-        return await createUserWithEmailAndPassword(auth, email, password);
+        return await auth.createUserWithEmailAndPassword(email, password);
     }
     // Mock register
     const user = { email, uid: "mock-uid-123" };
@@ -63,17 +44,17 @@ export const registerUser = async (email, password) => {
     return { user };
 };
 
-export const logoutUser = async () => {
+window.logoutUser = async () => {
     if (auth) {
-        return await signOut(auth);
+        return await auth.signOut();
     }
     if (mockAuthCallback) mockAuthCallback(null);
     return true;
 };
 
-export const listenToAuthStatus = (callback) => {
+window.listenToAuthStatus = (callback) => {
     if (auth) {
-        onAuthStateChanged(auth, callback);
+        auth.onAuthStateChanged(callback);
     } else {
         mockAuthCallback = callback;
         // Mock default state: not logged in
@@ -81,19 +62,19 @@ export const listenToAuthStatus = (callback) => {
     }
 };
 
-// DB Wrapper Functions
-export const saveUserProgress = async (userId, data) => {
+// Global DB Wrapper Functions
+window.saveUserProgress = async (userId, data) => {
     if (db) {
-        await setDoc(doc(db, "users", userId), data, { merge: true });
+        await db.collection("users").doc(userId).set(data, { merge: true });
     } else {
         console.log("Mock saved data:", data);
     }
 };
 
-export const getUserProgress = async (userId) => {
+window.getUserProgress = async (userId) => {
     if (db) {
-        const docSnap = await getDoc(doc(db, "users", userId));
-        if (docSnap.exists()) {
+        const docSnap = await db.collection("users").doc(userId).get();
+        if (docSnap.exists) {
             return docSnap.data();
         }
     }
