@@ -31,12 +31,12 @@ window.listenToAuthStatus(async (user) => {
     if (user) {
         currentUser = user;
         userDisplayName.textContent = user.email.split('@')[0];
-        
+
         // Fetch progress
         userProgress = await window.getUserProgress(user.uid);
         topicsCompleted.textContent = userProgress.topicsCompleted || 0;
         currentLevel.textContent = userProgress.level || "Beginner";
-        
+
         window.showSection('dashboard-section');
     } else {
         currentUser = null;
@@ -51,11 +51,11 @@ loginBtn.addEventListener('click', async (e) => {
         authError.textContent = "Logging in...";
         const email = emailInput.value.trim();
         const password = passwordInput.value;
-        
+
         if (!email || !password) {
             throw new Error("Please enter both email and password.");
         }
-        
+
         // Security Validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
@@ -78,7 +78,7 @@ signupBtn.addEventListener('click', async (e) => {
         if (!email || !password) {
             throw new Error("Please enter both email and password.");
         }
-        
+
         // Security Validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
@@ -106,7 +106,7 @@ startLearningBtn.addEventListener('click', async () => {
     currentTopic = topic;
     currentTopicTitle.textContent = topic;
     sessionLevel.textContent = userProgress.level || "Beginner";
-    
+
     // Reset Chat
     chatContainer.innerHTML = '';
     chatHistory = [];
@@ -118,7 +118,7 @@ startLearningBtn.addEventListener('click', async () => {
     window.showTypingIndicator('chat-container');
     const response = await window.getGeminiResponse(currentTopic, userProgress.level || "Beginner", null, []);
     window.removeTypingIndicator();
-    
+
     window.appendMessage('chat-container', response, 'bot');
     chatHistory.push({ role: 'bot', text: response });
 });
@@ -141,15 +141,15 @@ const handleSendMessage = async () => {
     // Add user message to UI
     window.appendMessage('chat-container', text, 'user');
     userResponse.value = '';
-    
+
     // Show bot thinking
     window.showTypingIndicator('chat-container');
-    
+
     const response = await window.getGeminiResponse(currentTopic, userProgress.level || "Beginner", text, chatHistory);
-    
+
     window.removeTypingIndicator();
     window.appendMessage('chat-container', response, 'bot');
-    
+
     // Update history
     chatHistory.push({ role: 'user', text });
     chatHistory.push({ role: 'bot', text: response });
