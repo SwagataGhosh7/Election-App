@@ -166,7 +166,7 @@ window.uploadUserDocument = async (userId, file) => {
     return new Promise((resolve) => {
         setTimeout(() => {
             console.log(`[Mock Storage] File uploaded: ${file.name}`);
-            resolve(`https://mockstorage.google.com/civicvote/${userId}/${file.name}`);
+            resolve(`https://mockstorage.google.com/electionease/${userId}/${file.name}`);
         }, 1500);
     });
 };

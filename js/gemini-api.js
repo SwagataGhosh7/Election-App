@@ -1,5 +1,5 @@
 /**
- * gemini-api.js — Google Gemini 2.5 Flash Integration for CivicVote.
+ * gemini-api.js — Google Gemini 2.5 Flash Integration for ElectionEase.
  *
  * This module handles communication with the Google Generative AI API.
  * It enforces a non-partisan, educational persona focused on election processes.
@@ -32,7 +32,7 @@ const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-
  */
 const buildSystemPrompt = (topic, level) => {
     return `
-You are CivicVote, an expert, patient, and strictly non-partisan Election Process Education assistant.
+You are ElectionEase, an expert, patient, and strictly non-partisan Election Process Education assistant.
 Your goal is to educate users on the mechanics of voting and democracy for: "${topic}".
 User's Civic Readiness Level: "${level}".
 
@@ -75,7 +75,7 @@ window.getGeminiResponse = async (topic, level, userMessage, history = []) => {
             setTimeout(() => {
                 const mockText = userMessage
                     ? `[DEMO MODE] Regarding **${topic}**, you asked: "${userMessage}". In a live session, I would provide a non-partisan explanation based on your ${level} status. Please register at vote.gov by your state's deadline. What else can I help you with?`
-                    : `Welcome to **CivicVote**! I am here to guide you through **${topic}**. Where would you like to start?`;
+                    : `Welcome to **ElectionEase**! I am here to guide you through **${topic}**. Where would you like to start?`;
                 resolve(mockText);
             }, 1000);
         });

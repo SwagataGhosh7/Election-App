@@ -1,7 +1,7 @@
 {
-  "name": "civicvote",
+  "name": "electionease",
   "version": "1.0.0",
-  "description": "CivicVote Election Process Education Assistant",
+  "description": "ElectionEase - Election Process Education Assistant",
   "main": "js/app.js",
   "scripts": {
     "test": "jest",

@@ -1,5 +1,5 @@
 /**
- * analytics.js — Google Analytics 4 (GA4) event tracking module for CivicVote.
+ * analytics.js — Google Analytics 4 (GA4) event tracking module for ElectionEase.
  *
  * This module wraps GA4's gtag() calls with semantic, named events that
  * reflect the civic education user journey. All events are non-personally
@@ -18,7 +18,7 @@
 window.trackEvent = (eventName, params = {}) => {
     if (typeof gtag === 'function') {
         gtag('event', eventName, {
-            app_name: 'CivicVote',
+            app_name: 'ElectionEase',
             app_version: '1.0.0',
             ...params
         });
@@ -85,7 +85,7 @@ window.trackPageView = (sectionId) => {
     if (typeof gtag === 'function') {
         gtag('event', 'page_view', {
             page_path: pageMap[sectionId] || `/${sectionId}`,
-            page_title: `CivicVote — ${sectionId}`
+            page_title: `ElectionEase — ${sectionId}`
         });
     } else {
         console.log(`[Analytics Mock] Page View: ${pageMap[sectionId] || sectionId}`);

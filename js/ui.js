@@ -1,5 +1,5 @@
 /**
- * ui.js — CivicVote UI utility functions.
+ * ui.js — ElectionEase UI utility functions.
  *
  * This module provides functions for HTML sanitization, markdown parsing,
  * section navigation, and chat UI management. It emphasizes security and accessibility.
@@ -174,7 +174,7 @@ window.showTypingIndicator = (containerId) => {
     const indicator = document.createElement('div');
     indicator.className = 'typing-indicator';
     indicator.id = 'typing-indicator';
-    indicator.setAttribute('aria-label', 'CivicVote is generating a response');
+    indicator.setAttribute('aria-label', 'ElectionEase is generating a response');
     indicator.setAttribute('aria-live', 'polite');
     indicator.setAttribute('aria-busy', 'true');
     indicator.innerHTML = `

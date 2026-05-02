@@ -4,7 +4,7 @@ FROM nginx:1.25-alpine
 # Remove default nginx static files
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copy the CivicVote static app files
+# Copy the ElectionEase static app files
 COPY . /usr/share/nginx/html
 
 # Copy custom nginx config with security headers

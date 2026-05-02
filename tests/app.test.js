@@ -1,5 +1,5 @@
 /**
- * app.test.js — CivicVote comprehensive test suite (Jest).
+ * app.test.js — ElectionEase comprehensive test suite (Jest).
  *
  * This suite provides 50+ tests covering:
  * - Security (XSS prevention, sanitization)

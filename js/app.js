@@ -1,5 +1,5 @@
 /**
- * app.js — CivicVote Main Application Controller.
+ * app.js — ElectionEase Main Application Controller.
  *
  * This module orchestrates the interaction between the UI, Firebase services,
  * and the Google Gemini AI. It manages the application state, including

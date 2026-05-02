@@ -1,5 +1,5 @@
 /**
- * timeline.js — Static Election Process Timeline Data for CivicVote.
+ * timeline.js — Static Election Process Timeline Data for ElectionEase.
  *
  * This module provides canonical, non-partisan data about the U.S. election lifecycle.
  * Used to inform the AI assistant and populate reference UI components.
