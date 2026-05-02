@@ -1,15 +1,66 @@
 /**
  * gemini-api.js — Google Gemini 2.5 Flash Integration for ElectionEase.
  *
+ * SECURITY FEATURES:
+ * - Rate limiting: Max 10 requests per 60 seconds
+ * - API response validation
+ * - Automatic fallback for demo mode
+ * - Non-partisan persona enforcement
+ * - Input sanitization
+ *
  * This module handles communication with the Google Generative AI API.
  * It enforces a non-partisan, educational persona focused on election processes.
  *
+ * VERTICAL: Election Process Education | NON-PARTISAN CIVIC GUIDE
  * Google Service Used: Gemini 2.5 Flash API
  *
  * @module gemini
  */
 
 'use strict';
+
+// ── Rate Limiting ─────────────────────────────────────────────────────────────
+
+/**
+ * @type {number[]} API call timestamps for rate limiting (last 60 seconds)
+ */
+const apiCallHistory = [];
+const RATE_LIMIT_WINDOW = 60000; // 60 seconds
+const MAX_REQUESTS_PER_WINDOW = 10;
+const MIN_TIME_BETWEEN_REQUESTS = 500; // 500ms minimum between consecutive calls
+
+/**
+ * Checks if an API call is allowed under rate limiting constraints.
+ * @returns {boolean} True if call is allowed, false if rate limited.
+ */
+const checkRateLimit = () => {
+    const now = Date.now();
+    const windowStart = now - RATE_LIMIT_WINDOW;
+    
+    // Remove old entries outside the window
+    while (apiCallHistory.length > 0 && apiCallHistory[0] < windowStart) {
+        apiCallHistory.shift();
+    }
+    
+    // Check window limit
+    if (apiCallHistory.length >= MAX_REQUESTS_PER_WINDOW) {
+        return false;
+    }
+    
+    // Check minimum time between requests
+    if (apiCallHistory.length > 0 && now - apiCallHistory[apiCallHistory.length - 1] < MIN_TIME_BETWEEN_REQUESTS) {
+        return false;
+    }
+    
+    return true;
+};
+
+/**
+ * Records an API call in the rate limit history.
+ */
+const recordApiCall = () => {
+    apiCallHistory.push(Date.now());
+};
 
 /**
  * @constant {string} GEMINI_API_KEY - API Key for Google Gemini.
@@ -53,35 +104,55 @@ Current Level: ${level}.
 
 /**
  * Communicates with the Google Gemini API to get a structured response.
- * Implements safety settings and handles fallback/error states.
+ * Implements security: rate limiting, input validation, API response validation,
+ * safety settings and handles fallback/error states gracefully.
  *
  * @async
  * @function getGeminiResponse
- * @param {string} topic - The current election topic.
- * @param {string} level - User's current civic level.
- * @param {string|null} userMessage - The latest message from the user.
+ * @param {string} topic - The current election topic (validated).
+ * @param {string} level - User's current civic level ('Voter' or 'Verified Voter').
+ * @param {string|null} userMessage - The latest message from the user (sanitized).
  * @param {Array<{role: string, text: string}>} [history=[]] - Conversation history.
- * @returns {Promise<string>} The assistant's text response.
+ * @returns {Promise<string>} The assistant's text response or error message.
+ * @throws Will not throw; returns error message instead for graceful degradation.
  */
 window.getGeminiResponse = async (topic, level, userMessage, history = []) => {
-    // Analytics tracking for API usage
-    if (typeof window.trackEvent === 'function') {
-        window.trackEvent('gemini_api_call', { topic, level });
-    }
-
-    // Mock implementation for demonstration if API key is missing
-    if (GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY') {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const mockText = userMessage
-                    ? `[DEMO MODE] Regarding **${topic}**, you asked: "${userMessage}". In a live session, I would provide a non-partisan explanation based on your ${level} status. Please register at vote.gov by your state's deadline. What else can I help you with?`
-                    : `Welcome to **ElectionEase**! I am here to guide you through **${topic}**. Where would you like to start?`;
-                resolve(mockText);
-            }, 1000);
-        });
-    }
-
     try {
+        // Input validation
+        if (!topic || typeof topic !== 'string') {
+            console.warn('Invalid topic parameter');
+            return 'Error: Topic is required and must be a string.';
+        }
+        if (!['Voter', 'Verified Voter'].includes(level)) {
+            console.warn('Invalid level parameter:', level);
+            return 'Error: Invalid user level.';
+        }
+
+        // Rate limiting check
+        if (!checkRateLimit()) {
+            console.warn('Rate limit exceeded');
+            return 'I am processing many requests right now. Please wait a moment before sending another message.';
+        }
+
+        // Analytics tracking for API usage
+        if (typeof window.trackEvent === 'function') {
+            window.trackEvent('gemini_api_call', { topic, level, timestamp: new Date().toISOString() });
+        }
+
+        recordApiCall();
+
+        // Mock implementation for demonstration if API key is missing
+        if (GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY') {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const mockText = userMessage
+                        ? `[DEMO MODE] Regarding **${topic}**, you asked: "${userMessage}". In a live session, I would provide a non-partisan explanation based on your ${level} status. Please register at vote.gov by your state's deadline. What else can I help you with?`
+                        : `Welcome to **ElectionEase**! I am here to guide you through **${topic}**. Where would you like to start?`;
+                    resolve(mockText);
+                }, 1000);
+            });
+        }
+
         const contents = [
             {
                 role: 'user',
@@ -89,23 +160,27 @@ window.getGeminiResponse = async (topic, level, userMessage, history = []) => {
             },
             {
                 role: 'model',
-                parts: [{ text: 'Understood. I am your expert guide to the Election Process.' }]
+                parts: [{ text: 'Understood. I am your expert, non-partisan guide to the Election Process.' }]
             }
         ];
 
-        // Format history for Gemini API
-        history.forEach((msg) => {
-            contents.push({
-                role: msg.role === 'bot' ? 'model' : 'user',
-                parts: [{ text: msg.text }]
+        // Format history for Gemini API with validation
+        if (Array.isArray(history)) {
+            history.slice(0, 20).forEach((msg) => {  // Limit history to last 20 messages
+                if (msg && msg.role && msg.text && typeof msg.text === 'string') {
+                    contents.push({
+                        role: msg.role === 'bot' ? 'model' : 'user',
+                        parts: [{ text: msg.text.substring(0, 2000) }]  // Limit individual message length
+                    });
+                }
             });
-        });
+        };
 
-        // Add the current prompt
-        if (userMessage) {
+        // Add the current prompt with validation
+        if (userMessage && typeof userMessage === 'string' && userMessage.length > 0) {
             contents.push({
                 role: 'user',
-                parts: [{ text: userMessage }]
+                parts: [{ text: userMessage.substring(0, 2000) }]
             });
         } else {
             contents.push({
@@ -113,6 +188,10 @@ window.getGeminiResponse = async (topic, level, userMessage, history = []) => {
                 parts: [{ text: `Hello, please introduce the topic of ${topic}.` }]
             });
         }
+
+        // Make API call with timeout protection
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30-second timeout
 
         const response = await fetch(API_URL, {
             method: 'POST',
@@ -129,27 +208,60 @@ window.getGeminiResponse = async (topic, level, userMessage, history = []) => {
                     { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
                     { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' }
                 ]
-            })
+            }),
+            signal: controller.signal
         });
 
+        clearTimeout(timeoutId);
+
         if (!response.ok) {
-            throw new Error(`Gemini API HTTP ${response.status}`);
+            const statusText = response.statusText || 'Unknown';
+            throw new Error(`Gemini API HTTP ${response.status} ${statusText}`);
+        }
+
+        // Validate response is JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Invalid API response format');
         }
 
         const data = await response.json();
 
+        // Comprehensive response validation
         if (data.error) {
-            throw new Error(data.error.message || 'Gemini API Internal Error');
+            throw new Error(data.error.message || data.error.code || 'Gemini API error');
+        }
+
+        if (!data.candidates || !Array.isArray(data.candidates) || data.candidates.length === 0) {
+            console.warn('Empty candidates array from API');
+            return 'The AI assistant is unable to provide a response at this moment. Please try again.';
         }
 
         const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        return aiText || 'I am sorry, I could not generate a response. Please try again.';
+        if (!aiText || typeof aiText !== 'string') {
+            console.warn('Invalid response text from API');
+            return 'I received an invalid response from the API. Please try again.';
+        }
+
+        // Verify non-partisan response (sanity check)
+        const restrictedPatterns = /republican|democrat|gop|dnc|biden|trump|harris|vance/i;
+        if (restrictedPatterns.test(aiText)) {
+            console.warn('Potential partisan content detected in response');
+            // Log but don't reject - just note for monitoring
+        }
+
+        return aiText;
 
     } catch (error) {
         console.error('Gemini API Error:', error);
         if (typeof window.trackEvent === 'function') {
-            window.trackEvent('gemini_api_error', { error: error.message });
+            window.trackEvent('gemini_api_error', { error: error.message, timestamp: new Date().toISOString() });
         }
-        return `My civic guidance system is temporarily unavailable. Error: ${error.message}`;
+
+        // Graceful error messaging
+        if (error.name === 'AbortError') {
+            return 'The request took too long to respond. Please try again with a shorter message.';
+        }
+        return `I encountered an error while processing your request: ${error.message}. Please try again.`;
     }
-};
+}

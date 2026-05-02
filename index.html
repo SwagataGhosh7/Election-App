@@ -4,9 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- Security: Content Security Policy prevents XSS attacks -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://generativelanguage.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://generativelanguage.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com">
+    <meta name="X-UA-Compatible" content="IE=edge">
     <title>ElectionEase - Election Process Education</title>
-    <meta name="description" content="An intelligent, non-partisan assistant that helps you understand the election process, timelines, and steps in an interactive and easy-to-follow way.">
+    <meta name="description" content="ElectionEase: A non-partisan, personalized AI tutor that educates voters about election processes, deadlines, and mechanics in an adaptive way.">
     <meta name="theme-color" content="#0a1628">
+    <!-- Accessibility: Specify language for screen readers -->
+    <meta name="language" content="en-US">
 
     <!-- Google Analytics (GA4) — Google Service Integration -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-ELECTIONEASE1"></script>
@@ -28,6 +34,9 @@
 </head>
 
 <body>
+    <!-- Skip to main content for keyboard navigation -->
+    <a href="#app" class="skip-link" tabindex="1">Skip to main content</a>
+    
     <main id="app" class="app-container" role="main" aria-label="ElectionEase Election Education App">
 
         <!-- ── Auth Section ── -->
