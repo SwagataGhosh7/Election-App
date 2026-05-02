@@ -189,37 +189,32 @@ window.getGeminiResponse = async (topic, level, userMessage, history = []) => {
             });
         }
 
-        // Make API call with timeout protection
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30-second timeout
+        // Use shared safeFetch utility to centralize timeout behavior and improve testability
+        const bodyPayload = {
+            contents,
+            generationConfig: {
+                temperature: 0.25,
+                maxOutputTokens: 1024,
+                topP: 0.9
+            },
+            safetySettings: [
+                { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
+                { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
+                { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' }
+            ]
+        };
 
-        const response = await fetch(API_URL, {
+        const response = await window.EEUtils.safeFetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents,
-                generationConfig: {
-                    temperature: 0.25, // Lower temperature for more factual consistency
-                    maxOutputTokens: 1024,
-                    topP: 0.9
-                },
-                safetySettings: [
-                    { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
-                    { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
-                    { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' }
-                ]
-            }),
-            signal: controller.signal
-        });
-
-        clearTimeout(timeoutId);
+            body: JSON.stringify(bodyPayload)
+        }, 30000);
 
         if (!response.ok) {
             const statusText = response.statusText || 'Unknown';
             throw new Error(`Gemini API HTTP ${response.status} ${statusText}`);
         }
 
-        // Validate response is JSON
         const contentType = response.headers.get('content-type');
         if (!contentType || !contentType.includes('application/json')) {
             throw new Error('Invalid API response format');

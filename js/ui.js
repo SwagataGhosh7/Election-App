@@ -10,27 +10,12 @@
 'use strict';
 
 /**
- * Escapes HTML special characters to prevent XSS injection.
- * Applied to all user-generated content before rendering in the DOM.
- *
- * @param {string} str - Raw input string to be sanitized.
- * @returns {string} Sanitized string safe for innerHTML rendering.
+ * Delegates HTML escaping to shared utilities to avoid duplicated logic.
+ * Keeps `window.escapeHTML` for backwards compatibility with tests.
  */
-window.escapeHTML = (str) => {
-    if (typeof str !== 'string') {
-        return '';
-    }
-    return str.replace(/[&<>'"]/g, (tag) => {
-        const chars = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            "'": '&#39;',
-            '"': '&quot;'
-        };
-        return chars[tag] || tag;
-    });
-};
+window.escapeHTML = window.EEUtils && typeof window.EEUtils.escapeHTML === 'function'
+    ? window.EEUtils.escapeHTML
+    : function (s) { return String(s || '').replace(/[&<>'"]/g, function (t) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[t]; }); };
 
 /**
  * Converts a limited subset of Markdown syntax to safe, accessible HTML.

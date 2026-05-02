@@ -62,18 +62,14 @@ const DOM = {
  * @param {string} email - The email string to validate.
  * @returns {boolean} True if valid.
  */
-const validateEmailFormat = (email) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-};
+// Delegate validation to shared utilities for consistency and testability
+const validateEmailFormat = (email) => window.EEUtils && typeof window.EEUtils.validateEmail === 'function'
+    ? window.EEUtils.validateEmail(email)
+    : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-/**
- * Validates password strength (minimum 8 characters).
- * @param {string} password - The password string.
- * @returns {boolean} True if meets minimum requirements.
- */
-const validatePasswordStrength = (password) => {
-    return typeof password === 'string' && password.length >= 8;
-};
+const validatePasswordStrength = (password) => window.EEUtils && typeof window.EEUtils.validatePassword === 'function'
+    ? window.EEUtils.validatePassword(password)
+    : (typeof password === 'string' && password.length >= 8);
 
 // ── Authentication Flow ────────────────────────────────────────────────────────
 
